@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Privacy Shield | Hackathon Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Privacy Tech Palette (Light Gray, Dark Charcoal, Muted Teal Accent) -->
+    <!-- Application Structure Plan: A single-page, top-to-bottom narrative structure. Starts with a hook (Hero), defines the problem (Problem), presents the core interactive solution (Demo), explains the mechanics (How It Works), shows relevance (Impact), and outlines the future (Roadmap). This linear flow is intuitive for judges, guiding them through the project's story logically. The interactive demo is placed centrally to be the main engagement point, making the abstract concept tangible and memorable. -->
+    <!-- Visualization & Content Choices: 
+    - Problem: Report Info (Need for privacy) -> Goal (Show urgency) -> Viz (Bar Chart) -> Interaction (None, static view) -> Justification (Quickly quantifies the problem's scale) -> Library (Chart.js/Canvas).
+    - Solution: Report Info (Core function of redacting faces/plates) -> Goal (Demonstrate functionality) -> Presentation (Interactive Image with Toggles) -> Interaction (User clicks toggles to apply/remove redaction overlays) -> Justification (Provides a hands-on, memorable experience of the tool's core value without a live backend) -> Library/Method (Vanilla JS + HTML divs).
+    - Technical Approach: Report Info (System pipeline) -> Goal (Organize complex info) -> Presentation (HTML/CSS Flowchart) -> Interaction (None, static view) -> Justification (Visually breaks down the process into digestible steps) -> Library/Method (HTML/CSS with Tailwind).
+    - Impact: Report Info (Use cases) -> Goal (Inform on applicability) -> Presentation (Interactive Cards) -> Interaction (Hover to reveal text) -> Justification (Engaging way to present distinct applications without cluttering the UI) -> Library/Method (HTML/CSS + JS).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
+        .font-mono { font-family: 'Roboto Mono', monospace; }
+        .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .brand-gradient { background: linear-gradient(90deg, #43cea2, #185a9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .brand-bg-gradient { background: linear-gradient(90deg, #43cea2, #185a9d); }
+        .nav-link { position: relative; transition: color 0.3s; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 50%; transform: translateX(-50%); background-color: #43cea2; transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+        .active-nav-link { color: #43cea2; }
+        .active-nav-link::after { width: 100%; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .redaction-box { position: absolute; background-color: rgba(24, 90, 157, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; transition: opacity 0.3s ease-in-out; opacity: 0; pointer-events: none; }
+        .redaction-box.active { opacity: 1; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="sticky top-0 z-50 w-full glass-effect shadow-md">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">
+                <span class="brand-gradient">Privacy Shield</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#problem" class="nav-link text-gray-600 hover:text-gray-900">The Problem</a>
+                <a href="#solution" class="nav-link text-gray-600 hover:text-gray-900">Our Solution</a>
+                <a href="#tech" class="nav-link text-gray-600 hover:text-gray-900">How It Works</a>
+                <a href="#impact" class="nav-link text-gray-600 hover:text-gray-900">Impact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="relative min-h-screen flex items-center justify-center text-center overflow-hidden bg-gray-900 text-white">
+            <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('https://images.unsplash.com/photo-1573164574511-73c7731ec979?q=80&w=2069&auto=format&fit=crop');"></div>
+            <div class="absolute inset-0 bg-black opacity-50"></div>
+            <div class="relative z-10 p-8">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+                    Real-Time <span class="brand-gradient">Privacy Shield</span>
+                </h1>
+                <p class="text-lg md:text-2xl max-w-3xl mx-auto text-gray-300">
+                    An open-source, AI-powered tool to automatically de-identify visual data from live video streams, baking privacy into the core of your systems.
+                </p>
+            </div>
+        </section>
+
+        <section id="problem" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-4">The Challenge: A Digital Deluge</h2>
+                <p class="max-w-3xl mx-auto text-gray-600 mb-12">
+                    In an era of ubiquitous cameras and live streaming, personally identifiable information (PII) is captured and shared at an unprecedented rate. This explosion of visual data creates significant privacy risks, making manual redaction impractical and after-the-fact solutions insufficient.
+                </p>
+                <div class="chart-container">
+                    <canvas id="dataGrowthChart"></canvas>
+                </div>
+                 <p class="text-sm text-gray-500 mt-4">Illustrative growth of unstructured visual data generated annually.</p>
+            </div>
+        </section>
+
+        <section id="solution" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold mb-4">The Solution: An Interactive Demo</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mb-12">
+                        I've built a proactive, privacy-first AI pipeline that processes video frames in real-time. It identifies and obscures PII before it's ever stored or shared. Try our interactive simulation below to see how it works.
+                    </p>
+                </div>
+
+                <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
+                    <div class="relative" id="demo-container">
+                        <img src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?q=80&w=2070&auto=format&fit=crop" alt="Office meeting" class="rounded-lg w-full h-auto">
+                        <div id="face-1" class="redaction-box" style="top: 35%; left: 22%; width: 8%; height: 12%;"></div>
+                        <div id="face-2" class="redaction-box" style="top: 42%; left: 38%; width: 7%; height: 11%;"></div>
+                        <div id="face-3" class="redaction-box" style="top: 38%; left: 55%; width: 8%; height: 13%;"></div>
+                        <div id="face-4" class="redaction-box" style="top: 45%; left: 75%; width: 7%; height: 10%;"></div>
+                        <div id="document-1" class="redaction-box" style="top: 65%; left: 48%; width: 15%; height: 18%;"></div>
+                    </div>
+                    <div class="mt-6 flex flex-col sm:flex-row justify-center items-center gap-6">
+                        <label for="redactFaces" class="flex items-center cursor-pointer">
+                            <div class="relative">
+                                <input type="checkbox" id="redactFaces" class="sr-only">
+                                <div class="block bg-gray-200 w-14 h-8 rounded-full"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                            </div>
+                            <div class="ml-3 text-gray-700 font-medium">Redact Faces</div>
+                        </label>
+                        <label for="redactDocuments" class="flex items-center cursor-pointer">
+                            <div class="relative">
+                                <input type="checkbox" id="redactDocuments" class="sr-only">
+                                <div class="block bg-gray-200 w-14 h-8 rounded-full"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                            </div>
+                            <div class="ml-3 text-gray-700 font-medium">Redact Documents</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold mb-4">How It Works: The Technical Pipeline</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mb-12">
+                        The solution is built on a simple yet powerful pipeline using modular, open-source components. Each stage is optimized for performance to ensure real-time processing.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-4 gap-8 text-center">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <div class="text-4xl brand-gradient mb-4">1</div>
+                        <h3 class="text-xl font-semibold mb-2">Video Capture</h3>
+                        <p class="text-gray-600">A live video feed is captured from a webcam or file using OpenCV.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <div class="text-4xl brand-gradient mb-4">2</div>
+                        <h3 class="text-xl font-semibold mb-2">AI Detection</h3>
+                        <p class="text-gray-600">Each frame is analyzed by a lightweight model (like YOLO) to detect PII.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <div class="text-4xl brand-gradient mb-4">3</div>
+                        <h3 class="text-xl font-semibold mb-2">Real-Time Redaction</h3>
+                        <p class="text-gray-600">A blur or pixelation filter is instantly applied to the detected areas.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <div class="text-4xl brand-gradient mb-4">4</div>
+                        <h3 class="text-xl font-semibold mb-2">Secure Output</h3>
+                        <p class="text-gray-600">The de-identified video stream is displayed, ensuring privacy is protected.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold mb-4">Real-World Impact & Applications</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mb-12">
+                        This tool has broad, impactful applications across sectors that handle visual data, empowering them to operate responsibly and ethically.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                        <h3 class="text-xl font-bold mb-3 text-teal-600">Journalism & Media</h3>
+                        <p class="text-gray-600">Broadcast live events from public spaces without exposing the identities of private citizens, upholding ethical standards.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                        <h3 class="text-xl font-bold mb-3 text-blue-600">Security & Compliance</h3>
+                        <p class="text-gray-600">Anonymize surveillance footage to comply with privacy regulations like GDPR while maintaining security effectiveness.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                        <h3 class="text-xl font-bold mb-3 text-indigo-600">Creative Content</h3>
+                        <p class="text-gray-600">Allow YouTubers and live streamers to easily protect the identities of people in the background of their videos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="future" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-4">The Road Ahead</h2>
+                <p class="max-w-3xl mx-auto text-gray-600 mb-12">
+                    This project is a meaningful step towards a future where privacy is a fundamental right. Our roadmap includes expanding capabilities to make privacy protection even more robust and accessible.
+                </p>
+                <ul class="text-left max-w-md mx-auto space-y-4">
+                    <li class="flex items-start"><span class="brand-gradient font-bold text-2xl mr-3">→</span><span><strong>Expanded PII Detection:</strong> Add support for redacting unique logos, vehicle models, and other identifiers.</span></li>
+                    <li class="flex items-start"><span class="brand-gradient font-bold text-2xl mr-3">→</span><span><strong>Multi-Platform Support:</strong> Optimize the tool for mobile devices and cloud-based video streams.</span></li>
+                    <li class="flex items-start"><span class="brand-gradient font-bold text-2xl mr-3">→</span><span><strong>User-Defined Policies:</strong> Allow users to create and save custom redaction policies for specific needs.</span></li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Real-Time Privacy Shield. A NASSCOM Hackathon Project.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartCtx = document.getElementById('dataGrowthChart').getContext('2d');
+            const dataGrowthChart = new Chart(chartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024', '2025 (Est.)'],
+                    datasets: [{
+                        label: 'Zettabytes of Visual Data',
+                        data: [64, 79, 97, 120, 149],
+                        backgroundColor: 'rgba(67, 206, 162, 0.6)',
+                        borderColor: 'rgba(67, 206, 162, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Global Unstructured Visual Data Growth', font: { size: 16 }, color: '#333' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            const redactFacesToggle = document.getElementById('redactFaces');
+            const redactDocumentsToggle = document.getElementById('redactDocuments');
+            
+            const faceBoxes = [document.getElementById('face-1'), document.getElementById('face-2'), document.getElementById('face-3'), document.getElementById('face-4')];
+            const docBoxes = [document.getElementById('document-1')];
+
+            function setupToggle(toggle, boxes) {
+                toggle.addEventListener('change', () => {
+                    const dot = toggle.nextElementSibling.querySelector('.dot');
+                    if (toggle.checked) {
+                        dot.style.transform = 'translateX(100%)';
+                        dot.style.backgroundColor = '#43cea2';
+                        boxes.forEach(box => box.classList.add('active'));
+                    } else {
+                        dot.style.transform = 'translateX(0)';
+                        dot.style.backgroundColor = 'white';
+                        boxes.forEach(box => box.classList.remove('active'));
+                    }
+                });
+            }
+
+            setupToggle(redactFacesToggle, faceBoxes);
+            setupToggle(redactDocumentsToggle, docBoxes);
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.5 };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-nav-link');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active-nav-link');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+
+</body>
+</html>
